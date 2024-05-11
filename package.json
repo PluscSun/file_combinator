@@ -1,0 +1,11 @@
+{
+  "name": "file_combinator",
+  "version": "1.0.0",
+  "description": "一个简单的静态文件合并服务器 ## 需求 <p>我们要开发的是一个简单的静态文件合并服务器，该服务器需要支持类似以下格式的JS或CSS文件合并请求。</p>",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
