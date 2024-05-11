@@ -2,8 +2,8 @@ var fs = require("fs"),
 	path = require("path"),
 	http = require("http");
 
-var outputFiles = require("./bin/outputFiles");
-var validateFiles = require("./bin/validateFiles");
+var outputFiles = require("./file_resolver/outputFiles");
+var validateFiles = require("./file_resolver/validateFiles");
 
 var MIME = {
 	".css": "text/css",
@@ -34,39 +34,41 @@ function main(argv) {
 		port = config.port || 80,
 		server;
 
-	server = http.createServer(function (request, response) {
-		var urlInfo = parseURL(root, request.url);
+	server = http
+		.createServer(function (request, response) {
+			var urlInfo = parseURL(root, request.url);
 
-		validateFiles(urlInfo.pathnames, function (err, pathnames) {
-			if (err) {
-				response.writeHead(404);
-				response.end(err.message);
-			} else {
-				response.writeHead(200, {
-					"Content-Type": urlInfo.mine,
-				});
-				outputFiles(pathnames, response);
-			}
+			validateFiles(urlInfo.pathnames, function (err, pathnames) {
+				if (err) {
+					response.writeHead(404);
+					response.end(err.message);
+				} else {
+					response.writeHead(200, {
+						"Content-Type": urlInfo.mine,
+					});
+					outputFiles(pathnames, response);
+				}
+			});
+
+			// combineFiles(urlInfo.pathnames, function (err, data) {
+			// 	if (err) {
+			// 		response.writeHead(404);
+			// 		response.end(err.message);
+			// 	} else {
+			// 		response.writeHead(200, {
+			// 			"Content-Type": urlInfo.mime,
+			// 		});
+			// 		response.end(data);
+			// 	}
+			// });
+		})
+		.listen(port);
+
+	process.on("SIGTERM", function () {
+		server.close(function () {
+			process.exit(0);
 		});
-
-		// combineFiles(urlInfo.pathnames, function (err, data) {
-		// 	if (err) {
-		// 		response.writeHead(404);
-		// 		response.end(err.message);
-		// 	} else {
-		// 		response.writeHead(200, {
-		// 			"Content-Type": urlInfo.mime,
-		// 		});
-		// 		response.end(data);
-		// 	}
-		// });
-	}).listen(port);
-
-    process.on('SIGTERM', function(){
-        server.close(function(){
-            process.exit(0);
-        })
-    })
+	});
 }
 
 function parseURL(root, url) {
